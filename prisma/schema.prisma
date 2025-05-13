@@ -1,0 +1,108 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int       @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  email    String    
+  phone_number String 
+  is_admin Boolean   @default(false)
+  last_name     String
+  first_name String
+  password String
+  is_active Boolean @default(true)
+
+  UserTest UserTest[]
+}
+
+model Lesson {
+  id       Int       @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  createdBy Int
+  // deletedAt DateTime?
+  name String
+  picture String
+  desc String
+
+  LessonTest LessonTest[]
+}
+
+model LessonTest {
+  id       Int       @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  createdBy Int
+  // deletedAt DateTime?
+  LessonID Int
+  name String
+  desc String
+
+  Lesson Lesson @relation(fields: [LessonID], references: [id])
+  Questions Questions[]
+  UserTest UserTest[]
+}
+
+model Questions {
+  id       Int       @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  createdBy Int
+  LessonTestID Int
+  question String
+  question_type String
+
+  LessonTest LessonTest @relation(fields: [LessonTestID], references: [id])
+  QuestionsMedia QuestionsMedia[]
+  Answers Answers[]
+  UserAnswers UserAnswers[]
+}
+
+model QuestionsMedia {
+  id       Int       @id @default(autoincrement())
+  QuestionsID Int
+  media String
+
+  Questions Questions @relation(fields: [QuestionsID], references: [id])
+}
+
+model Answers {
+  id       Int       @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  createdBy Int
+  QuestionsID Int
+  answer String
+  is_correct Boolean
+
+  Questions Questions @relation(fields: [QuestionsID], references: [id])
+  UserAnswers UserAnswers[]
+}
+
+model UserTest {
+  id       Int       @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  createdBy Int
+  startAt DateTime?
+  endedAt DateTime?
+  LessonTestID Int
+
+  User User @relation(fields: [createdBy], references: [id])
+  LessonTest LessonTest @relation(fields: [LessonTestID], references: [id])
+  UserAnswers UserAnswers[]
+}
+
+model UserAnswers {
+  id       Int       @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  createdBy Int
+  UserTestID Int
+  QuestionsID Int
+  AnswerId Int
+
+  Answers Answers @relation(fields: [AnswerId], references: [id])
+  UserTest UserTest @relation(fields: [UserTestID], references: [id])
+  Questions Questions @relation(fields: [QuestionsID], references: [id])
+}
